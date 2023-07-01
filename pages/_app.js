@@ -1,6 +1,6 @@
-import Head from "next/head";
-import "../styles/globals.css";
-import { UserProvider } from "@auth0/nextjs-auth0/client";
+import Head from 'next/head'
+import '../styles/globals.css'
+import { UserProvider } from '@auth0/nextjs-auth0/client'
 
 function App({ Component, pageProps }) {
   return (
@@ -10,7 +10,7 @@ function App({ Component, pageProps }) {
       </Head>
       <Component {...pageProps} />
     </UserProvider>
-  );
+  )
 }
 
-export default App;
+export default App

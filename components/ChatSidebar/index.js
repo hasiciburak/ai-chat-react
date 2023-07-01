@@ -1,1 +1,1 @@
-export { ChatSidebar } from "./ChatSidebar.js";
+export { ChatSidebar } from './ChatSidebar.js'
