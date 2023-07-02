@@ -1,14 +1,23 @@
 import { useUser } from '@auth0/nextjs-auth0/client'
 import { faRobot } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { CodeCopyBtn } from 'components/CodeCopyBtn'
 import Image from 'next/image'
 import React from 'react'
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { materialDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 
+const Pre = ({ children }) => (
+  <pre className="blog-pre">
+    <CodeCopyBtn>{children}</CodeCopyBtn>
+    {children}
+  </pre>
+)
+
 export const Message = ({ role, content }) => {
   const { user } = useUser()
+
   return (
     <div
       className={`grid grid-cols-[30px_1fr] gap-5 p-5 ${
@@ -34,6 +43,7 @@ export const Message = ({ role, content }) => {
       <div className="prose prose-invert ">
         <ReactMarkdown
           components={{
+            pre: Pre,
             code({ node, inline, className, children, ...props }) {
               const match = /language-(\w+)/.exec(className || '')
               return !inline && match ? (
@@ -42,6 +52,9 @@ export const Message = ({ role, content }) => {
                   children={String(children).replace(/\n$/, '')}
                   language={match[1]}
                   style={materialDark}
+                  customStyle={{
+                    backgroundColor: 'transparent',
+                  }}
                   showInlineLineNumbers={true}
                   wrapLines={true}
                   {...props}
