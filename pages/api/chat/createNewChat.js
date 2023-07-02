@@ -11,23 +11,21 @@ export default async function handler(req, res) {
     }
     const client = await clientPromise
     const db = client.db('ChattyBh')
-    const chat = await db
-      .collection('chats')
-      .insertOne({
-        userId: user.sub,
-        messages: [newUserMessage],
-        title: message,
-      })
-      .json({
-        _id: chat.insertedId.toString,
-        messages: [newUserMessage],
-        title: message,
-      })
-    res.status(200)
+    const chat = await db.collection('chats').insertOne({
+      userId: user.sub,
+      messages: [newUserMessage],
+      title: message,
+    })
+
+    res.status(200).json({
+      _id: chat.insertedId.toString,
+      messages: [newUserMessage],
+      title: message,
+    })
   } catch (error) {
     res
       .status(500)
       .json({ message: 'An error occured when creating a new chat' })
-    console.log('ERROR OCCURED CREATING NEW CHAT', e)
+    console.log('ERROR OCCURED CREATING NEW CHAT', error)
   }
 }
