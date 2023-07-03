@@ -30,6 +30,5 @@ export default async function handler(req, res) {
     res.status(500).json({
       message: 'An error occured when getting the chat list',
     })
-    console.log('ERROR', error)
   }
 }

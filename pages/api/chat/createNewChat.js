@@ -16,9 +16,8 @@ export default async function handler(req, res) {
       messages: [newUserMessage],
       title: message,
     })
-
     res.status(200).json({
-      _id: chat.insertedId.toString,
+      _id: chat.insertedId.toString(),
       messages: [newUserMessage],
       title: message,
     })

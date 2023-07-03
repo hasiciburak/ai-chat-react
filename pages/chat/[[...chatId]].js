@@ -1,15 +1,25 @@
 import { ChatSidebar } from 'components/ChatSidebar'
 import { Message } from 'components/Message'
 import Head from 'next/head'
+import { useRouter } from 'next/router'
 import { streamReader } from 'openai-edge-stream'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 
 export default function ChatPage() {
+  const router = useRouter()
+  const [newChatId, setNewChatId] = useState(null)
   const [incomingMessage, setIncomingMessage] = useState('')
   const [messageText, setMessageText] = useState('')
   const [newChatMessages, setNewChatMessages] = useState([])
   const [generatingResponse, setGeneratingResponse] = useState(false)
+
+  useEffect(() => {
+    if (!generatingResponse && newChatId) {
+      setNewChatId(null)
+      router.push(`/chat/${newChatId}`)
+    }
+  }, [newChatId, generatingResponse])
 
   /** @summary: For submitting prompt text */
   const handleSubmit = async (e) => {
@@ -27,35 +37,29 @@ export default function ChatPage() {
       return newChatMessages
     })
     setMessageText('')
-    const response = await fetch('/api/chat/createNewChat', {
+
+    const response = await fetch(`/api/chat/sendMessage`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
       },
-      body: JSON.stringify({
-        message: messageText,
-      }),
+      body: JSON.stringify({ message: messageText }),
     })
-    const json = await response.json()
-    console.log('NEW JSON', json)
 
-    // const response = await fetch(`/api/chat/sendMessage`, {
-    //   method: 'POST',
-    //   headers: {
-    //     'content-type': 'application/json',
-    //   },
-    //   body: JSON.stringify({ message: messageText }),
-    // })
+    const data = response.body
+    if (!data) {
+      return
+    }
 
-    // const data = response.body
-    // if (!data) {
-    //   return
-    // }
-
-    // const reader = data.getReader()
-    // await streamReader(reader, (message) => {
-    //   setIncomingMessage((s) => `${s}${message?.content}`)
-    // })
+    const reader = data.getReader()
+    await streamReader(reader, (message) => {
+      console.log('MESSAGE', message)
+      if (message.event === 'newChatId') {
+        setNewChatId(message.content)
+      } else {
+        setIncomingMessage((s) => `${s}${message?.content}`)
+      }
+    })
     setGeneratingResponse(false)
   }
 

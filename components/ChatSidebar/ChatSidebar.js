@@ -14,7 +14,6 @@ export const ChatSidebar = () => {
     const loadChatList = async () => {
       const response = await fetch('/api/chat/getChatList', { method: 'POST' })
       const json = await response.json()
-      console.log('CHAT LIST', json)
       setChatList(json?.chats || [])
     }
     loadChatList()
@@ -30,7 +29,7 @@ export const ChatSidebar = () => {
       <div className="flex flex-1 flex-col overflow-auto bg-gray-950">
         {chatList.map((chat) => (
           <Link
-            key={chat.id}
+            key={chat._id}
             href={`/chat/${chat._id}`}
             className="side-menu-item"
           >
