@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 
-export const ChatSidebar = () => {
+export const ChatSidebar = ({ chatId }) => {
   const [chatList, setChatList] = useState([])
 
   useEffect(() => {
@@ -17,7 +17,7 @@ export const ChatSidebar = () => {
       setChatList(json?.chats || [])
     }
     loadChatList()
-  }, [])
+  }, [chatId])
   return (
     <div className="flex flex-col overflow-hidden bg-gray-900 text-white">
       <Link
@@ -31,7 +31,9 @@ export const ChatSidebar = () => {
           <Link
             key={chat._id}
             href={`/chat/${chat._id}`}
-            className="side-menu-item"
+            className={`side-menu-item ${
+              chatId === chat._id ? 'bg-gray-700' : ''
+            }`}
           >
             <FontAwesomeIcon icon={faMessage} />
             {chat.title}
