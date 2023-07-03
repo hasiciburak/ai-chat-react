@@ -18,6 +18,7 @@ export const ChatSidebar = ({ chatId }) => {
     }
     loadChatList()
   }, [chatId])
+
   return (
     <div className="flex flex-col overflow-hidden bg-gray-900 text-white">
       <Link
@@ -36,7 +37,12 @@ export const ChatSidebar = ({ chatId }) => {
             }`}
           >
             <FontAwesomeIcon icon={faMessage} />
-            {chat.title}
+            <span
+              title={chat.title}
+              className="overflow-hidden text-ellipsis whitespace-nowrap"
+            >
+              {chat.title}
+            </span>
           </Link>
         ))}
       </div>
