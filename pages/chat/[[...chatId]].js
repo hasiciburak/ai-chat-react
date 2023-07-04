@@ -17,7 +17,8 @@ export default function ChatPage({ chatId, title, messages = [] }) {
   const [newChatMessages, setNewChatMessages] = useState([])
   const [fullMessage, setFullMessage] = useState('')
   const [generatingResponse, setGeneratingResponse] = useState(false)
-
+  const [originalChatId, setOriginalChatId] = useState(chatId)
+  let routeHasChanged = chatId !== originalChatId
   /** When route changes update updates variables to initial*/
   useEffect(() => {
     setNewChatMessages([])
@@ -25,14 +26,14 @@ export default function ChatPage({ chatId, title, messages = [] }) {
   }, [chatId])
   /** save the newly streamed message to new chat messages */
   useEffect(() => {
-    if (!generatingResponse && fullMessage) {
+    if (!routeHasChanged && !generatingResponse && fullMessage) {
       setNewChatMessages((prev) => [
         ...prev,
         { _id: uuid(), role: 'assistant', content: fullMessage },
       ])
       setFullMessage('')
     }
-  }, [generatingResponse, fullMessage])
+  }, [routeHasChanged, generatingResponse, fullMessage])
 
   /** Handle we created a new chat */
   useEffect(() => {
@@ -46,6 +47,7 @@ export default function ChatPage({ chatId, title, messages = [] }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setGeneratingResponse(true)
+    setOriginalChatId(chatId)
     setNewChatMessages((prev) => {
       const newChatMessages = [
         ...prev,
@@ -96,17 +98,25 @@ export default function ChatPage({ chatId, title, messages = [] }) {
       <div className="grid h-screen grid-cols-[260px_1fr]">
         <ChatSidebar chatId={chatId} title={title} messages={messages} />
         <div className="flex flex-col overflow-hidden  bg-gray-700">
-          <div className="flex-1 overflow-scroll overflow-x-hidden text-white">
-            {allMessages?.map((message) => (
-              <Message
-                key={message._id}
-                role={message.role}
-                content={message.content}
-              />
-            ))}
-            {!!incomingMessage && (
-              <Message role="assistant" content={incomingMessage} />
-            )}
+          <div className="flex flex-1 flex-col-reverse overflow-scroll overflow-x-hidden text-white">
+            <div className="mb-auto">
+              {allMessages?.map((message) => (
+                <Message
+                  key={message._id}
+                  role={message.role}
+                  content={message.content}
+                />
+              ))}
+              {!!incomingMessage && !routeHasChanged && (
+                <Message role="assistant" content={incomingMessage} />
+              )}
+              {!!incomingMessage && !!routeHasChanged && (
+                <Message
+                  role="notice"
+                  content="Only one message at a time. Please allow any other responses to complete another messages"
+                />
+              )}
+            </div>
           </div>
           <footer className="bg-gray-800 p-10">
             <form onSubmit={handleSubmit}>
