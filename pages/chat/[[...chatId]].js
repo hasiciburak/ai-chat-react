@@ -95,7 +95,7 @@ export default function ChatPage({ chatId, title, messages = [] }) {
   return (
     <>
       <Head>
-        <title>Chats/RoboBH</title>
+        <title>Chats Page - RoboBH</title>
       </Head>
       <div className="grid h-screen grid-cols-[260px_1fr]">
         <ChatSidebar chatId={chatId} title={title} messages={messages} />
