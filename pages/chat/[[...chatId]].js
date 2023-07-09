@@ -1,4 +1,6 @@
 import { getSession } from '@auth0/nextjs-auth0'
+import { faRobot } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { ChatSidebar } from 'components/ChatSidebar'
 import { Message } from 'components/Message'
 import clientPromise from 'lib/mongodb'
@@ -99,24 +101,39 @@ export default function ChatPage({ chatId, title, messages = [] }) {
         <ChatSidebar chatId={chatId} title={title} messages={messages} />
         <div className="flex flex-col overflow-hidden  bg-gray-700">
           <div className="flex flex-1 flex-col-reverse overflow-scroll overflow-x-hidden text-white">
-            <div className="mb-auto">
-              {allMessages?.map((message) => (
-                <Message
-                  key={message._id}
-                  role={message.role}
-                  content={message.content}
-                />
-              ))}
-              {!!incomingMessage && !routeHasChanged && (
-                <Message role="assistant" content={incomingMessage} />
-              )}
-              {!!incomingMessage && !!routeHasChanged && (
-                <Message
-                  role="notice"
-                  content="Only one message at a time. Please allow any other responses to complete another messages"
-                />
-              )}
-            </div>
+            {!allMessages.length && !incomingMessage && (
+              <div className="m-auto items-center justify-center text-center">
+                <div>
+                  <FontAwesomeIcon
+                    icon={faRobot}
+                    className="text-6xl text-emerald-200"
+                  />
+                  <h1 className="mt-2 text-4xl font-bold text-white/50">
+                    Ask me a question!
+                  </h1>
+                </div>
+              </div>
+            )}
+            {!!allMessages.length && (
+              <div className="mb-auto">
+                {allMessages?.map((message) => (
+                  <Message
+                    key={message._id}
+                    role={message.role}
+                    content={message.content}
+                  />
+                ))}
+                {!!incomingMessage && !routeHasChanged && (
+                  <Message role="assistant" content={incomingMessage} />
+                )}
+                {!!incomingMessage && !!routeHasChanged && (
+                  <Message
+                    role="notice"
+                    content="Only one message at a time. Please allow any other responses to complete another messages"
+                  />
+                )}
+              </div>
+            )}
           </div>
           <footer className="bg-gray-800 p-10">
             <form onSubmit={handleSubmit}>
@@ -149,13 +166,30 @@ export default function ChatPage({ chatId, title, messages = [] }) {
 export const getServerSideProps = async (ctx) => {
   const chatId = ctx.params?.chatId?.[0] || null
   if (chatId) {
+    let objectId
+    try {
+      objectId = new ObjectId(chatId)
+    } catch (error) {
+      return {
+        redirect: {
+          destination: '/chat',
+        },
+      }
+    }
     const { user } = await getSession(ctx.req, ctx.res)
     const client = await clientPromise
     const db = client.db('ChattyBh')
     const chat = await db.collection('chats').findOne({
       userId: user.sub,
-      _id: new ObjectId(chatId),
+      _id: objectId,
     })
+    if (!chat) {
+      return {
+        redirect: {
+          destination: '/chat',
+        },
+      }
+    }
     const mappedMessages = chat?.messages.map((message) => ({
       ...message,
       _id: uuid(),

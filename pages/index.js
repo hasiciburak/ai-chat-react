@@ -2,7 +2,6 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useUser } from '@auth0/nextjs-auth0/client'
 import { getSession } from '@auth0/nextjs-auth0'
-import { redirect } from 'next/dist/server/api-utils'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faRobot } from '@fortawesome/free-solid-svg-icons'
 
@@ -24,9 +23,9 @@ export default function Home() {
               className="mb-2 text-6xl text-emerald-200"
             />
           </div>
-          <h1 className="text-4xl">Welcome to RoboBH</h1>
-          <p className="text-lg">Log in with your account to continue</p>
-          <div>
+          <h1 className="text-4xl font-bold">Welcome to RoboBH</h1>
+          <p className="mt-2 text-lg">Log in with your account to continue</p>
+          <div className="mt-4 flex justify-center gap-3">
             {!!user && <Link href="/api/auth/logout">Logout</Link>}
             {!user && (
               <>
